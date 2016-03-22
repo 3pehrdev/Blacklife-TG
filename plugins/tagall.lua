@@ -1,6 +1,6 @@
 local function tagall(cb_extra, success, result)
     local receiver = cb_extra.receiver
-    local channel_id = "channel#id"..result.id
+    local channel_id = "chat#id"..result.id
     local text = '____________________________\n'
     for k,v in pairs(result.members) do
         if v.username then
