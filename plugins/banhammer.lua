@@ -336,8 +336,8 @@ return {
     "^([Bb]an)$",
     "^[!/#]([Uu]nban)$",
     "^([Uu]nban)$",
-    "^[!/#]([Ii]d)$",
-    "^([Ii]d)$",
+    "^[!/#](dfgh)$",
+    "^(dfgh)$",
     "^!!tgservice (.+)$"
   },
   run = run,
