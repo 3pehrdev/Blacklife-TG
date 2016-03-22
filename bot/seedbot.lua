@@ -229,7 +229,7 @@ function create_config( )
     sudo_users = {85831686},--Sudo users
     disabled_channels = {},
     moderation = {data = 'data/moderation.json'},
-    about_text = BlackLifeTG v1.2beta
+    about_text = [BlackLifeTG v1.2beta
 An advance Administration bot based on teleseed 
 
 ---------------------------------------
@@ -240,7 +240,6 @@ amir - @negative_officiall
 mobin - @Xxcrazy_boyxX
 
 -----------------------------
-
 Special thanks to:
 iman daneshi
 potus
@@ -249,7 +248,7 @@ Vamptacus
 
 Our channels:
 @blacklifeTG
------------------------
+o
 ]],
     help_text_realm = [[
 Realm Commands:
