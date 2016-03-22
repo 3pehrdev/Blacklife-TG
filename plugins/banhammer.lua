@@ -21,7 +21,7 @@ local function pre_process(msg)
       print('Checking invited user '..user_id)
       local banned = is_banned(user_id, msg.to.id)
       if banned or is_gbanned(user_id) then -- Check it with redis
-        print('User is already sicked!')
+        print('User is banned!')
         local name = user_print_name(msg.from)
         savelog(msg.to.id, name.." ["..msg.from.id.."] added a banned user >"..msg.action.user.id)-- Save to logs
         kick_user(user_id, msg.to.id)
@@ -103,24 +103,24 @@ local function kick_ban_res(extra, success, result)
         if is_momod2(member_id, chat_id) and not is_admin2(sender) then
           return send_large_msg(receiver, "You can't ban mods/owner/admins")
         end
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] sicked from 'msg.to.title' .')
+        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] banned')
         return ban_user(member_id, chat_id)
       elseif get_cmd == 'unban' then
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] sikoFFed from 'msg.to.title' .')
+        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] unbanned')
         local hash =  'banned:'..chat_id
         redis:srem(hash, member_id)
         return 'User '..user_id..' unbanned'
       elseif get_cmd == 'banall' then
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] sicked from all groups')
+        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] globally banned')
         return banall_user(member_id, chat_id)
       elseif get_cmd == 'unbanall' then
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] sickoFFed from all groups')
+        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] un-globally banned')
         return unbanall_user(member_id, chat_id)
       end
 end
 
 local function run(msg, matches)
- if matches[1]:lower() == 'ddd' then
+ if matches[1]:lower() == 'id' then
     if msg.to.type == "user" then
       return "Bot ID: "..msg.to.id.. "\n\nYour ID: "..msg.from.id
     end
@@ -128,7 +128,7 @@ local function run(msg, matches)
       local name = user_print_name(msg.from)
         savelog(msg.to.id, name.." ["..msg.from.id.."] used /id ")
         id = get_message(msg.reply_id,get_message_callback_id, false)
-    elseif matches[1]:lower() == 'ddd' then
+    elseif matches[1]:lower() == 'id' then
       local name = user_print_name(msg.from)
       savelog(msg.to.id, name.." ["..msg.from.id.."] used /id ")
       return "Group ID for " ..string.gsub(msg.to.print_name, "_", " ").. ":\n\n"..msg.to.id  
@@ -147,14 +147,14 @@ local function run(msg, matches)
     return
   end
 
-  if matches[1]:lower() == "sicklist" then -- Ban list !
+  if matches[1]:lower() == "banlist" then -- Ban list !
     local chat_id = msg.to.id
     if matches[2] and is_admin(msg) then
       chat_id = matches[2] 
     end
     return ban_list(chat_id)
   end
-  if matches[1]:lower() == 'sick' then-- /ban 
+  if matches[1]:lower() == 'ban' then-- /ban 
     if type(msg.reply_id)~="nil" and is_momod(msg) then
       if is_admin(msg) then
         local msgr = get_message(msg.reply_id,ban_by_reply_admins, false)
@@ -180,7 +180,7 @@ local function run(msg, matches)
       else
 		local cbres_extra = {
 		chat_id = msg.to.id,
-		get_cmd = 'sick',
+		get_cmd = 'ban',
 		from_id = msg.from.id
 		}
 		local username = matches[2]
@@ -203,11 +203,11 @@ local function run(msg, matches)
         	redis:srem(hash, user_id)
         	local name = user_print_name(msg.from)
         	savelog(msg.to.id, name.." ["..msg.from.id.."] unbaned user ".. matches[2])
-        	return 'User '..user_id..' unbanned from '..msg.to.title..' .'
+        	return 'User '..user_id..' unbanned'
       else
 		local cbres_extra = {
 			chat_id = msg.to.id,
-			get_cmd = 'sickoff',
+			get_cmd = 'unban',
 			from_id = msg.from.id
 		}
 		local username = matches[2]
@@ -269,11 +269,11 @@ end
          	return false 
         end
         	banall_user(targetuser)
-       		return 'User ['..msg.from.print_name..' ] sicked from all groups'
+       		return 'User ['..user_id..' ] globally banned'
       else
 	local cbres_extra = {
 		chat_id = msg.to.id,
-		get_cmd = 'sickall',
+		get_cmd = 'banall',
 		from_id = msg.from.id
 	}
 		local username = matches[2]
@@ -281,7 +281,7 @@ end
 		res_user(username, kick_ban_res, cbres_extra)
       	end
   end
-  if matches[1]:lower() == 'sickoffall' then -- Global unban
+  if matches[1]:lower() == 'unbanall' then -- Global unban
     local user_id = matches[2]
     local chat_id = msg.to.id
       if string.match(matches[2], '^%d+$') then
@@ -289,11 +289,11 @@ end
           	return false 
         end
        		unbanall_user(user_id)
-        	return 'User ['..user_id..' ] sickoFFed from all groups'
+        	return 'User ['..user_id..' ] removed from global ban list'
       else
 	local cbres_extra = {
 		chat_id = msg.to.id,
-		get_cmd = 'sickoffall',
+		get_cmd = 'unbanall',
 		from_id = msg.from.id
 	}
 		local username = matches[2]
@@ -301,31 +301,47 @@ end
 		res_user(username, kick_ban_res, cbres_extra)
       end
   end
-  if matches[1]:lower() == "sickalllist" then -- Global ban list
+  if matches[1]:lower() == "gbanlist" then -- Global ban list
     return banall_list()
   end
 end
 
 return {
-  patterns = {
-    "^[!/](sickall) (.*)$",
-    "^[!/](sickall)$",
-    "^[!/](sicklist) (.*)$",
-    "^[!/](sicklist)$",
-    "^[!/](sickalllist)$",
-    "^[!/](sick) (.*)$",
-    "^[!/]([Kk]ick)$",
-    "^[!/](sickoff) (.*)$",
-    "^[!/](sickoffall) (.*)$",
-    "^[!/](sickoffall)$",
-    "^[!/]([Kk]ick) (.*)$",
-    "^[!/]([Kk]ickme)$",
-    "^[!/](sick)$",
-    "^[!/](sickoff)$",
-    "^[!/](ddd)$",
+ patterns = {
+    "^[!/#]([Bb]anall) (.*)$",
+    "^([Bb]anall) (.*)$",
+    "^[!/#]([Bb]anall)$",
+    "^([Bb]anall)$",
+    "^[!/#]([Bb]anlist) (.*)$",
+    "^([Bb]anlist) (.*)$",
+    "^[!/#]([Bb]anlist)$",
+    "^([Bb]anlist)$",
+    "^[!/#]([Gg]banlist)$",
+    "^([Gg]banlist)$",
+    "^[!/#]([Bb]an) (.*)$",
+    "^([Bb]an) (.*)$",
+    "^[!/#]([Kk]ick)$",
+    "^([Kk]ick)$",
+    "^[!/#]([Uu]nban) (.*)$",
+    "^([Uu]nban) (.*)$",
+    "^[!/#]([Uu]nbanall) (.*)$",
+    "^([Uu]nbanall) (.*)$",
+    "^[!/#]([Uu]nbanall)$",
+    "^([Uu]nbanall)$",
+    "^[!/#]([Kk]ick) (.*)$",
+    "^([Kk]ick) (.*)$",
+    "^[!/#]([Kk]ickme)$",
+    "^([Kk]ickme)$",
+    "^[!/#]([Bb]an)$",
+    "^([Bb]an)$",
+    "^[!/#]([Uu]nban)$",
+    "^([Uu]nban)$",
+    "^[!/#]([Ii]d)$",
+    "^([Ii]d)$",
     "^!!tgservice (.+)$"
   },
   run = run,
   pre_process = pre_process
 }
+
 
