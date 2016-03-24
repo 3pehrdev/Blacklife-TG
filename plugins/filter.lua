@@ -1,6 +1,6 @@
 local function save_filter(msg, name, value)
 	local hash = nil
-	if msg.to.type == 'channel' then
+	if msg.to.type == 'chat' then
 		hash = 'chat:'..msg.to.id..':filters'
 	end
 	if msg.to.type == 'user' then
@@ -13,7 +13,7 @@ local function save_filter(msg, name, value)
 end
 
 local function get_filter_hash(msg)
-	if msg.to.type == 'channel' then
+	if msg.to.type == 'chat' then
 		return 'chat:'..msg.to.id..':filters'
 	end
 end 
@@ -38,12 +38,12 @@ local function get_filter(msg, var_name)
 	if hash then
 		local value = redis:hget(hash, var_name)
 		if value == 'msg' then
-			send_large_msg('channel#id'..msg.to.id, 'User @'..msg.from.username.. '\nGet Warn Because Useing Filtered Word')
+			send_large_msg('chat#id'..msg.to.id, 'User @'..msg.from.username.. '\nGet Warn Because Useing Filtered Word')
 			delete_msg(msg.id, ok_cb, true)
 		    elseif value == 'kick' then
-			send_large_msg('channel#id'..msg.to.id, 'User @'..msg.from.username.. '\nKicked Because Using Filtered Word')
+			send_large_msg('chat#id'..msg.to.id, 'User @'..msg.from.username.. '\nKicked Because Using Filtered Word')
 			delete_msg(msg.id, ok_cb, true)
-			channel_kick_user('channel#id'..msg.to.id, 'user#id'..msg.from.id, ok_cb, true)
+			chat_kick_user('chat#id'..msg.to.id, 'user#id'..msg.from.id, ok_cb, true)
 			elseif value == 'clean' then
 			delete_msg(msg.id, ok_cb, true)
 		end
@@ -120,7 +120,7 @@ local function run(msg, matches)
 				return text
 			end
 		end
-	elseif matches[1] == "ilter" and matches[2] == "?" then
+	elseif matches[1] == "filter" and matches[2] == "?" then
 		return get_filter_act(msg, matches[3]:lower())
 	else
 		if is_sudo(msg) then
