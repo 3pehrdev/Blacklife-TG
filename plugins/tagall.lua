@@ -16,7 +16,7 @@ local function run(msg, matches)
     return "For owner only !"
   end
   if matches[1] then
-    channel_info(receiver, tagall, {receiver = receiver,msg_text = matches[1]})
+    chat_info(receiver, tagall, {receiver = receiver,msg_text = matches[1]})
   end
   return
 end
