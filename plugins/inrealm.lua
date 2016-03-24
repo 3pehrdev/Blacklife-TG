@@ -7,7 +7,7 @@ local function create_group(msg)
         if is_sudo(msg) or is_realm(msg) and is_admin(msg) then
                 local group_creator = msg.from.print_name
                 create_group_chat (group_creator, group_name, ok_cb, false)
-                return 'Group [ '..string.gsub(group_name, '_', ' ')..' ] has been created.'
+                return 'Group [ '..string.gsub(group_name, '_', ' ')..' ] created.'
         end
 end
 
@@ -16,7 +16,7 @@ local function create_realm(msg)
         if is_sudo(msg) or is_realm(msg) and is_admin(msg) then
                 local group_creator = msg.from.print_name
                 create_group_chat (group_creator, group_name, ok_cb, false)
-                return 'Realm [ '..string.gsub(group_name, '_', ' ')..' ] has been created.'
+                return 'Realm [ '..string.gsub(group_name, '_', ' ')..' ] created.'
         end
 end
 
@@ -63,22 +63,22 @@ end
 
 local function set_description(msg, data, target, about)
     if not is_admin(msg) then
-        return "For admins only!"
+        return "For admins!"
     end
     local data_cat = 'description'
         data[tostring(target)][data_cat] = about
         save_data(_config.moderation.data, data)
-        return 'Set group description to:\n'..about
+        return 'Set description to:\n'..about
 end
  
 local function set_rules(msg, data, target)
     if not is_admin(msg) then
-        return "For admins only!"
+        return "For admins!"
     end
     local data_cat = 'rules'
         data[tostring(target)][data_cat] = rules
         save_data(_config.moderation.data, data)
-        return 'Set group rules to:\n'..rules
+        return 'Set rules to:\n'..rules
 end
 -- lock/unlock group name. bot automatically change group name when locked
 local function lock_group_name(msg, data, target)
@@ -88,37 +88,37 @@ local function lock_group_name(msg, data, target)
     local group_name_set = data[tostring(target)]['settings']['set_name']
     local group_name_lock = data[tostring(target)]['settings']['lock_name']
         if group_name_lock == 'yes' then
-            return 'Group name is already locked'
+            return 'name already locked'
         else
             data[tostring(target)]['settings']['lock_name'] = 'yes'
                 save_data(_config.moderation.data, data)
                 rename_chat('chat#id'..target, group_name_set, ok_cb, false)
-        return 'Group name has been locked'
+        return 'name been locked!'
         end
 end
  
 local function unlock_group_name(msg, data, target)
     if not is_admin(msg) then
-        return "For admins only!"
+        return "For admins!"
     end
     local group_name_set = data[tostring(target)]['settings']['set_name']
     local group_name_lock = data[tostring(target)]['settings']['lock_name']
         if group_name_lock == 'no' then
-            return 'Group name is already unlocked'
+            return 'name already unlocked'
         else
             data[tostring(target)]['settings']['lock_name'] = 'no'
             save_data(_config.moderation.data, data)
-        return 'Group name has been unlocked'
+        return 'name been unlocked!'
         end
 end
 --lock/unlock group member. bot automatically kick new added user when locked
 local function lock_group_member(msg, data, target)
     if not is_admin(msg) then
-        return "For admins only!"
+        return "For admins!"
     end
     local group_member_lock = data[tostring(target)]['settings']['lock_member']
         if group_member_lock == 'yes' then
-            return 'Group members are already locked'
+            return 'members already locked'
         else
             data[tostring(target)]['settings']['lock_member'] = 'yes'
             save_data(_config.moderation.data, data)
@@ -364,11 +364,11 @@ local function admin_user_promote(receiver, member_username, member_id)
                 save_data(_config.moderation.data, data)
         end
         if data['admins'][tostring(member_id)] then
-                return send_large_msg(receiver, member_username..' is already as admin.')
+                return send_large_msg(receiver, member_username..' is already admin.')
         end
         data['admins'][tostring(member_id)] = member_username
         save_data(_config.moderation.data, data)
-        return send_large_msg(receiver, '@'..member_username..' has been promoted as admin.')
+        return send_large_msg(receiver, '@'..member_username..'  promote to admin.')
 end
  
 local function admin_user_demote(receiver, member_username, member_id)
@@ -378,11 +378,11 @@ local function admin_user_demote(receiver, member_username, member_id)
                 save_data(_config.moderation.data, data)
         end
         if not data['admins'][tostring(member_id)] then
-                return send_large_msg(receiver, member_username..' is not an admin.')
+                return send_large_msg(receiver, member_username..' is not admin.')
         end
         data['admins'][tostring(member_id)] = nil
         save_data(_config.moderation.data, data)
-        return send_large_msg(receiver, 'Admin '..member_username..' has been demoted.')
+        return send_large_msg(receiver, 'Admin '..member_username..'demoted.')
 end
 
  
@@ -603,14 +603,14 @@ function run(msg, matches)
 				chat_info(receiver, username_id, {mod_cmd= mod_cmd, receiver=receiver, member=member})
 			end
 		end
-		if matches[1] == 'removeadmin' then
+		if matches[1] == 'remadmin' then
 			if string.match(matches[2], '^%d+$') then
 				local admin_id = matches[2]
 				print("user "..admin_id.." has been demoted")
 				return admin_demote(msg, admin_id)
 			else
 			local member = string.gsub(matches[2], "@", "")
-				local mod_cmd = "removeadmin"
+				local mod_cmd = "remadmin"
 				chat_info(receiver, username_id, {mod_cmd= mod_cmd, receiver=receiver, member=member})
 			end
 		end
@@ -674,7 +674,7 @@ return {
     "^[!/](kill) (chat) (%d+)$",
     "^[!/](kill) (realm) (%d+)$",
     "^[!/](addadmin) (.*)$", -- sudoers only
-    "^[!/](removeadmin) (.*)$", -- sudoers only
+    "^[!/](remadmin) (.*)$", -- sudoers only
     "^[!/](list) (.*)$",
         "^[!/](log)$",
         "^[!/](help)$",
